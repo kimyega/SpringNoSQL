@@ -1,5 +1,6 @@
 package kopo.poly.persistance.mongodb.impl;
 
+import com.mongodb.MongoException;
 import com.mongodb.client.AggregateIterable;
 import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
@@ -15,10 +16,7 @@ import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.stereotype.Component;
 import tools.jackson.databind.ObjectMapper;
 
-import java.util.Arrays;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Slf4j
 @Component
@@ -131,5 +129,78 @@ public class MelonMapper extends AbstractMongoDBComon implements IMelonMapper {
         log.info("{}.getSingerSongCnt End!", this.getClass().getName());
 
         return rList;
+    }
+
+    @Override
+    public List<MelonDTO> getSingerSong(String colNm, MelonDTO pDTO) throws MongoException {
+
+        log.info("{}.getSingerSong Start!", this.getClass().getName());
+
+        List<MelonDTO> rList = new LinkedList<>();
+
+        MongoCollection<Document> col = mongodb.getCollection(colNm);
+
+        Document query = new Document();
+        query.append("singer", CmmUtil.nvl(pDTO.singer()));
+
+        Document projection = new Document();
+        projection.append("song", "$song");
+        projection.append("singer", "$singer");
+
+        projection.append("_id", 0);
+
+        FindIterable<Document> rs = col.find(query).projection(projection);
+
+        for (Document doc : rs) {
+            String song = CmmUtil.nvl(doc.getString("song"));
+            String singer = CmmUtil.nvl(doc.getString("singer"));
+
+            MelonDTO rDTO = MelonDTO.builder().singer(singer).song(song).build();
+
+            rList.add(rDTO);
+        }
+
+        log.info("{}.getSingerSong End!", this.getClass().getName());
+
+        return rList;
+    }
+
+    @Override
+    public int dropCollection(String colNm) throws Exception {
+
+        log.info("{}.dropCollection Start!", this.getClass().getName());
+
+        int res = super.dropCollection(mongodb, colNm) ? 1 : 0;
+
+        log.info("{}.dropCollection End!", this.getClass().getName());
+
+        return res;
+    }
+
+    @Override
+    public int insertManyField(String colNm, List<MelonDTO> pList) throws Exception {
+
+        log.info("{}.insertManyField Start!", this.getClass().getName());
+
+        int res;
+
+        if (super.createCollection(mongodb, colNm, "collectTime")) {
+            log.info("{} 생성되었습니다.", colNm);
+        }
+
+        MongoCollection<Document> col = mongodb.getCollection(colNm);
+
+        List<Document> list = new ArrayList<>();
+
+        pList.parallelStream().forEach(melon ->
+                list.add(new Document(new ObjectMapper().convertValue(melon, Map.class))));
+
+        col.insertMany(list);
+
+        res = 1;
+
+        log.info("{}.insertManyField End!", this.getClass().getName());
+
+        return res;
     }
 }

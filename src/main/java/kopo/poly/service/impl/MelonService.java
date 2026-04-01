@@ -104,4 +104,56 @@ public class MelonService implements IMelonService {
 
         return rList;
     }
+
+    @Override
+    public List<MelonDTO> getSingerSong(MelonDTO pDTO) throws Exception {
+
+        log.info("{}.getSingerSong End!", this.getClass().getName());
+
+        String colNm = "MELON_" + DateUtil.getDateTime("yyyyMMdd");
+
+        List<MelonDTO> rList = null;
+
+        if (this.collectMelonSong() == 1) {
+            rList = melonMapper.getSingerSong(colNm, pDTO);
+        }
+
+        log.info("{}.getSingerSong End!", this.getClass().getName());
+
+        return rList;
+    }
+
+    @Override
+    public int dropCollection() throws Exception {
+
+        log.info("{}.dropCollection Start!", this.getClass().getName());
+
+        int res;
+
+        String colNm = "MELON_" + DateUtil.getDateTime("yyyyMMdd");
+
+        res =  melonMapper.dropCollection(colNm);
+
+        log.info("{}.dropCollection End!", this.getClass().getName());
+
+        return res;
+    }
+
+    @Override
+    public List<MelonDTO> insertManyField() throws Exception {
+
+        log.info("{}.insertManyField Start!", this.getClass().getName());
+
+        List<MelonDTO> rList = null;
+
+        String colNm =  "MELON_" + DateUtil.getDateTime("yyyyMMdd");
+
+        if (melonMapper.insertManyField(colNm, this.doCollect()) == 1) {
+            rList = melonMapper.getSongList(colNm);
+        }
+
+        log.info("{}.insertManyField End!", this.getClass().getName());
+
+        return rList;
+    }
 }

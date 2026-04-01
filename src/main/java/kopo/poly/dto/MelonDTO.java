@@ -14,7 +14,7 @@ public record MelonDTO (
         String collectTime,
         String song,
         String singer,
-        int singerCnt,
+        Integer singerCnt,
         String updateSinger,
         String nickname,
         List<String> member,
