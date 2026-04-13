@@ -29,4 +29,10 @@ public interface IMelonMapper {
     int updateAddListField(String colNm, MelonDTO pDTO) throws Exception;
 
     List<MelonDTO> getSingerSongMember(String colNm, MelonDTO pDTO) throws Exception;
+
+    int updateFieldAndAddField(String colNm, MelonDTO pDTO) throws Exception;
+
+    List<MelonDTO> getSingerSongAddData(String colNm, MelonDTO pDTO) throws Exception;
+
+    int deleteDocument(String colNm, MelonDTO pDTO) throws Exception;
 }
