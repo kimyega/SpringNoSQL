@@ -12,9 +12,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @Slf4j
 @RequestMapping(value = "/redis/v1")
@@ -88,6 +86,42 @@ public class RedisController {
 
         return ResponseEntity.ok(
                 CommonResponse.of(HttpStatus.OK, HttpStatus.OK.series().name(), rDTO)
+        );
+    }
+
+    @PostMapping(value = "saveSetJSON")
+    public ResponseEntity<CommonResponse<Set<RedisDTO>>> saveSetJSON(@RequestBody List<RedisDTO> pList)
+            throws Exception {
+
+        log.info("{}.saveSetJSON Start!", this.getClass().getName());
+
+        log.info("pList : {}", pList);
+
+        Set<RedisDTO> rSet = Optional.ofNullable(myRedisService.saveSetJSON(pList))
+                .orElseGet(HashSet::new);
+
+        log.info("{}.saveSetJSON End!", this.getClass().getName());
+
+        return ResponseEntity.ok(
+                CommonResponse.of(HttpStatus.OK, HttpStatus.OK.series().name(), rSet)
+        );
+    }
+
+    @PostMapping(value = "saveZSetJSON")
+    public ResponseEntity<CommonResponse<Set<RedisDTO>>> saveZSetJSON(@RequestBody List<RedisDTO> pList)
+            throws Exception {
+
+        log.info("{}.saveZSetJSON Start!", this.getClass().getName());
+
+        log.info("pList : {}", pList);
+
+        Set<RedisDTO> rSet = Optional.ofNullable(myRedisService.saveZSetJSON(pList))
+                .orElseGet(HashSet::new);
+
+        log.info("{}.saveZSetJSON End!", this.getClass().getName());
+
+        return ResponseEntity.ok(
+            CommonResponse.of(HttpStatus.OK, HttpStatus.OK.series().name(), rSet)
         );
     }
 }
