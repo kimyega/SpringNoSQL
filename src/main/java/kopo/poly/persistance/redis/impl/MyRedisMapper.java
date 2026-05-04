@@ -13,6 +13,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 @Slf4j
@@ -225,5 +226,96 @@ public class MyRedisMapper implements IMyRedisMapper {
 
 
         return rDTO;
+    }
+
+    @Override
+    public int saveSetJSON(String redisKey, List<RedisDTO> pList) throws DataAccessException {
+
+        log.info("{}.saveSetJSON Start!", this.getClass().getName());
+
+        int res;
+
+        redisDB.setKeySerializer(new StringRedisSerializer());
+        redisDB.setValueSerializer(new JacksonJsonRedisSerializer<>(RedisDTO.class));
+
+        this.deleteRedisKey(redisKey);
+
+        log.info("입력받은 데이터 수 : {}", pList.size());
+
+        pList.forEach(dto -> redisDB.opsForSet().add(redisKey, dto));
+
+        redisDB.expire(redisKey, 5, TimeUnit.HOURS);
+
+        res = 1;
+
+        log.info("{}.saveSetJSON End!", this.getClass().getName());
+
+        return res;
+    }
+
+    @Override
+    public Set<RedisDTO> getSetJSON(String redisKey) throws DataAccessException {
+
+        log.info("{}.getSetJSON Start!", this.getClass().getName());
+
+        Set<RedisDTO> rSet = null;
+
+        redisDB.setKeySerializer(new StringRedisSerializer());
+
+        redisDB.setValueSerializer(new JacksonJsonRedisSerializer<>(RedisDTO.class));
+
+        if (Boolean.TRUE.equals(redisDB.hasKey(redisKey))) {
+            rSet = (Set) redisDB.opsForSet().members(redisKey);
+        }
+
+        log.info("{}.getSetJSON End!", this.getClass().getName());
+
+        return rSet;
+    }
+
+    @Override
+    public int saveZSetJSON(String redisKey, List<RedisDTO> pList) throws Exception {
+
+        log.info("{}.saveZSetJSON Start!", this.getClass().getName());
+
+        int res;
+
+        redisDB.setKeySerializer(new StringRedisSerializer());
+
+        redisDB.setValueSerializer(new JacksonJsonRedisSerializer<>(RedisDTO.class));
+
+        this.deleteRedisKey(redisKey);
+
+        pList.forEach(dto -> {
+            redisDB.opsForZSet().add(redisKey, dto, dto.order());
+        });
+
+        redisDB.expire(redisKey, 5, TimeUnit.HOURS);
+
+        res = 1;
+
+        log.info("{}.saveZSetJSON End!", this.getClass().getName());
+
+        return res;
+    }
+
+    @Override
+    public Set<RedisDTO> getZSetJSON(String redisKey) throws Exception {
+
+        log.info("{}.getZSetJSON Start!", this.getClass().getName());
+
+        Set<RedisDTO> rSet = null;
+
+        redisDB.setKeySerializer(new StringRedisSerializer());
+
+        redisDB.setValueSerializer(new JacksonJsonRedisSerializer<>(RedisDTO.class));
+
+        if (Boolean.TRUE.equals(redisDB.hasKey(redisKey))) {
+            rSet = (Set) redisDB.opsForZSet().range(redisKey, 0, -1);
+        }
+
+        log.info("{}.getZSetJSON End!", this.getClass().getName());
+
+        return rSet;
     }
 }
