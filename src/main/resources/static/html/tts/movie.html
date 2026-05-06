@@ -36,7 +36,7 @@
         type: "post",
         contentType: "application/json",
         dataType: "json",
-        data: JSON.stringify($("#f").serializeObject())
+        data: JSON.stringify({speechCommand: final_transcript})
       }).then(
               function (json) {
 
@@ -50,7 +50,7 @@
                   $("#cgv_rank_list").append("<div class='divTableCell'>" + data.name + "</div>");
                   $("#cgv_rank_list").append("<div class='divTableCell'>" + data.score + "</div>");
                   $("#cgv_rank_list").append("<div class='divTableCell'>" + data.reserve + "</div>");
-                  $("#cgv_rank_list").append("<div class='divTableCell'>" + dta.openDay + "</div>");
+                  $("#cgv_rank_list").append("<div class='divTableCell'>" + data.openDay + "</div>");
                   $("#cgv_rank_list").append("</div>");
                 }
               }
