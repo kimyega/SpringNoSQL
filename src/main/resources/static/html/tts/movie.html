@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>CGV 영화정보가져오기</title>
+  <link rel="stylesheet" href="/css/table.css"/>
+  <script type="text/javascript" src="/js/annyang.js"></script>
+  <script type="text/javascript" src="/js/jquery-3.6.0.min.js"></script>
+  <script type="text/javascript" src="/js/jquery.serializeObject.min.js"></script>
+  <script>
+
+    annyang.start({
+      autoRestart: true,
+      continuous: true
+    })
+
+    let recognition = annyang.getSpeechRecognizer();
+
+    recognition.interimResults = true;
+
+    recognition.onresult = function (event) {
+
+      let final_transcript = "";
+
+      for (let i = event.resultIndex; i < event.results.length; ++i) {
+        if (event.results[i].isFinal) {
+          final_transcript += event.results[i][0].transcript;
+        }
+      }
+
+      $("#view_msg").html(final_transcript);
+      $("#speechCommand").val(final_transcript)
+
+      $.ajax({
+        url: "/movie/v1/speechcommand",
+        type: "post",
+        contentType: "application/json",
+        dataType: "json",
+        data: JSON.stringify($("#f").serializeObject())
+      }).then(
+              function (json) {
+
+                $("#cgv_rank_list").empty();
+
+                const result = json.data;
+
+                for (const data of result) {
+                  $("#cgv_rank_list").append("<div class='divTableRow'>");
+                  $("#cgv_rank_list").append("<div class='divTableCell'>" + data.rank + "</div>");
+                  $("#cgv_rank_list").append("<div class='divTableCell'>" + data.name + "</div>");
+                  $("#cgv_rank_list").append("<div class='divTableCell'>" + data.score + "</div>");
+                  $("#cgv_rank_list").append("<div class='divTableCell'>" + data.reserve + "</div>");
+                  $("#cgv_rank_list").append("<div class='divTableCell'>" + dta.openDay + "</div>");
+                  $("#cgv_rank_list").append("</div>");
+                }
+              }
+      )
+    }
+  </script>
+</head>
+<body>
+
+<div class="divTable minimalistBlack">
+  <div class="divTableHeading">
+    <div class="divTableRow">
+      <div class="divTableHead">내가 방금 말한 음성명령</div>
+    </div>
+  </div>
+  <div class="divTableBody" id="view_msg">
+  </div>
+</div>
+<br/><br/>
+<h2>영화 순위 결과</h2>
+<div class="divTable minimalistBlack">
+  <div class="divTableHeading">
+    <div class="divTableRow">
+      <div class="divTableHead">순위</div>
+      <div class="divTableHead">제목</div>
+      <div class="divTableHead">평점</div>
+      <div class="divTableHead">예매율</div>
+      <div class="divTableHead">개봉일</div>
+    </div>
+  </div>
+  <div class="divTableBody" id="cgv_rank_list">
+  </div>
+</div>
+
+<form name="f" id="f" method="post">
+  <input type="hidden" name="speechCommand" id="speechCommand" />
+</form>
+
+</body>
+</html>
