@@ -34,7 +34,13 @@ public class MovieService implements IMovieService {
 
         Document doc;
 
-        doc = Jsoup.connect(url).get();
+        doc = Jsoup.connect(url)
+                .userAgent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/120.0.0.0 Safari/537.36")
+                .header("Accept-Language", "ko-KR,ko;q=0.9")
+                .header("Connection", "keep-alive")
+                .header("Accept", "text/html,application/xhtml+xml")
+                .timeout(10000)
+                .get();
 
         Elements element = doc.select("div.sect-movie-chart");
 
