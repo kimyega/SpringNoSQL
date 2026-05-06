@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>음성인식 기초 프로그램</title>
+    <link rel="stylesheet" href="/css/table.css">
+    <script type="text/javascript" src="/js/annyang.js"></script>
+    <script type="text/javascript" src="/js/jquery-3.6.0.min.js"></script>
+    <script type="text/javascript">
+
+        annyang.start({
+            autoRestart: true,
+            continuous: true
+        })
+
+        let recognition = annyang.getSpeechRecognizer()
+
+        recognition.interimResults = true
+
+        recognition.onresult = function (event) {
+
+            let final_transcript = "";
+
+            for (let i = event.resultIndex; i < event.results.length; ++i) {
+                if (event.result[i].isFinal) {
+                    final_transcript += event.results[i][0].transcript
+                }
+            }
+
+            $("#mySpeak").html(final_transcript);
+            $("#totalMySpeak").append(final_transcript + "<br/>");
+        }
+    </script>
+</head>
+<body>
+<div class="divTable minimalistBlack">
+    <div class="divTableHeading">
+        <div class="divTableRow">
+            <div class="divTableHead">내가 방금 한 말</div>
+        </div>
+    </div>
+    <div class="divTableBody" id="mySpeak">
+    </div>
+</div>
+
+<div class="divTable minimalistBlack">
+    <div class="divTableHeading">
+        <div class="divTableRow">
+            <div class="divTableHead">음성메시지 전체 내용</div>
+        </div>
+    </div>
+    <div class="divTableBody" id="totalMySpeak">
+    </div>
+</div>
+
+</body>
+</html>
